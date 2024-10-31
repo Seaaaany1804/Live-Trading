@@ -23,6 +23,7 @@
               </q-item>
             </div>
 
+
             <q-separator vertical inset class="q-mx-lg" />
 
           <div class="column items-center">
@@ -31,7 +32,7 @@
             </q-avatar>
 
             <!-- Put the username here -->
-            <div class="text-subtitle1 q-mt-md q-mb-xs">John Doe</div>
+            <div class="text-subtitle1 q-mt-md q-mb-xs">John Dogs </div>
 
             <q-btn
               color="primary"
