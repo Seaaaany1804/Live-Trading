@@ -67,6 +67,19 @@
             />
           </template>
         </q-input>
+
+        <q-input
+    v-if="is2FARequired"
+    filled
+    v-model="twoFactorCode"
+    label="2FA Code"
+    class="q-mb-md"
+    lazy-rules
+    :rules="[val => !!val || 'Please enter your 2FA code']"
+  />
+  <!-- Display QR Code if 2FA setup is required -->
+  <img v-if="qrCodeUrl" :src="qrCodeUrl" alt="Scan QR Code to Setup 2FA" />
+
         <q-btn
           :label="registerMode ? 'Register' : 'Log in'"
           color="primary"
@@ -97,7 +110,10 @@ export default {
       newPassword: '',
       confirmPassword: '',
       isPwd: true,
-      registerMode: false
+      registerMode: false,
+      twoFactorCode: '',
+      is2FARequired: false,
+      qrCodeUrl: null, // Store QR code for initial setup
     };
   },
   setup() {
@@ -133,18 +149,30 @@ export default {
       }
     },
 
-async onLogin() {
+    async onLogin() {
     try {
         const response = await axios.post('http://localhost:3000/user/login', {
             username: this.username,
             password: this.password,
+            token: this.is2FARequired ? this.twoFactorCode : undefined,
         });
-        console.log('Response data:', response.data); // Log the entire response
-        this.router.push({ name: "main-layout" });
+        
+        // Reset the QR code URL if the login is successful
+        this.qrCodeUrl = null;
 
+        if (response.data.qrCodeUrl) {
+            this.qrCodeUrl = response.data.qrCodeUrl; // Show QR code if setup is required
+            this.is2FARequired = true; // Set the flag for 2FA
+        } else {
+            this.router.push({ name: "main-layout" });
+        }
     } catch (error) {
-        console.error('Login failed:', error.response || error);
-        alert('Failed to login');
+        if (error.response && error.response.data.message === '2FA token required') {
+            this.is2FARequired = true; // Indicate that 2FA is required
+        } else {
+            console.error('Login failed:', error.response || error);
+            alert('Failed to login');
+        }
     }
 }
 
