@@ -1,3 +1,4 @@
+//backend/src/user/user.entity.ts
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
@@ -16,4 +17,7 @@ export class User {
 
   @Column({ default: false })
   is_google_auth_enabled: boolean;
+
+  @Column({ default: 'enabled' })
+  status: string;
 }

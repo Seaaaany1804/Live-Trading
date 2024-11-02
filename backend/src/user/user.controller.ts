@@ -1,3 +1,4 @@
+//backend/src/user/user.controller.ts
 import { Controller, Post, Put, Body, UnauthorizedException } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Public } from '../common/decorators/public.decorator';
@@ -32,4 +33,17 @@ export class UserController {
   ) {
     return this.userService.changePassword(username, currentPassword, newPassword);
   }
+
+  @Put('update-2fa')
+async updateTwoFactorAuth(
+  @Body('username') username: string,
+  @Body('status') status: string,
+) {
+  return this.userService.updateTwoFactorAuth(username, status);
+}
+
+@Put('reset-2fa')
+async resetTwoFactorAuth(@Body('username') username: string) {
+  return this.userService.resetTwoFactorAuth(username);
+}
 }

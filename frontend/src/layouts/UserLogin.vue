@@ -1,3 +1,5 @@
+<!-- frontend/src/layouts/UserLogin.vue -->
+
 <template>
   <div class="background fullscreen flex justify-center items-center">
     <q-card flat bordered class="login-card">
@@ -69,13 +71,13 @@
         </q-input>
 
         <q-input
-    v-if="is2FARequired"
-    filled
-    v-model="twoFactorCode"
-    label="2FA Code"
-    class="q-mb-md"
-    lazy-rules
-    :rules="[val => !!val || 'Please enter your 2FA code']"
+          v-if="is2FARequired"
+          filled
+          v-model="twoFactorCode"
+          label="2FA Code"
+          class="q-mb-md"
+          lazy-rules
+          :rules="[val => !!val || 'Please enter your 2FA code']"
   />
   <!-- Display QR Code if 2FA setup is required -->
   <img v-if="qrCodeUrl" :src="qrCodeUrl" alt="Scan QR Code to Setup 2FA" />
@@ -120,6 +122,11 @@ export default {
     const router = useRouter();
     return { router };
   },
+  async mounted() {
+    // Fetch user details to check 2FA status
+    const response = await axios.get(`http://localhost:3000/user/${this.username}`);
+    this.is2FARequired = response.data.status === 'enabled';
+  },
   methods: {
     toggleRegisterMode() {
       this.registerMode = !this.registerMode;
@@ -150,32 +157,32 @@ export default {
     },
 
     async onLogin() {
-      try {
-        const response = await axios.post('http://localhost:3000/user/login', {
-          username: this.username,
-          password: this.password,
-          token: this.is2FARequired ? this.twoFactorCode : undefined,
-        });
+  try {
+    const response = await axios.post('http://localhost:3000/user/login', {
+      username: this.username,
+      password: this.password,
+      token: this.is2FARequired ? this.twoFactorCode : undefined,
+    });
 
-        this.qrCodeUrl = null; // Reset QR code URL if login is successful
+    this.qrCodeUrl = null; // Reset QR code URL if login is successful
 
-        if (response.data.qrCodeUrl) {
-          this.qrCodeUrl = response.data.qrCodeUrl;
-          this.is2FARequired = true;
-        } else {
-          // Save the username in localStorage
-          localStorage.setItem('username', this.username);
-          this.router.push({ name: "main-layout" });
-        }
-      } catch (error) {
-        if (error.response && error.response.data.message === '2FA token required') {
-          this.is2FARequired = true;
-        } else {
-          console.error('Login failed:', error.response || error);
-          alert('Failed to login');
-        }
-      }
+    if (response.data.qrCodeUrl) {
+      this.qrCodeUrl = response.data.qrCodeUrl;
+      this.is2FARequired = true;
+    } else {
+      // Save the username in localStorage
+      localStorage.setItem('username', this.username);
+      this.router.push({ name: "main-layout" });
     }
+  } catch (error) {
+    if (error.response && error.response.data.message === '2FA token required') {
+      this.is2FARequired = true;
+    } else {
+      console.error('Login failed:', error.response || error);
+      alert('Failed to login');
+    }
+  }
+}
 
 
   }

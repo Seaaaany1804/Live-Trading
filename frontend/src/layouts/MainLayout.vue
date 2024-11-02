@@ -1,3 +1,5 @@
+<!-- frontend/src/layouts/MainLayout.vue -->
+
 <template>
   <div class="flex justify-end q-mx-lg q-mt-lg">  
     <div class="q-pa-md">
@@ -14,7 +16,7 @@
                 <q-item-label>Change Password</q-item-label>
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup>
+            <q-item clickable v-close-popup @click="openUpdate2FAModal">
               <q-item-section>
                 <q-item-label>Change 2FA</q-item-label>
               </q-item-section>
@@ -42,6 +44,10 @@
         :show="showChangePasswordModal"
         @close="showChangePasswordModal = false"
       />
+      <Update2FAModal
+        :show="showUpdate2FAModal"
+        @close="showUpdate2FAModal = false"
+      />
     </div>
   </div>
 </template>
@@ -49,15 +55,18 @@
 <script>
 import { useRouter } from 'vue-router';
 import ChangePasswordModal from '../components/ChangePasswordModal.vue';
+import Update2FAModal from '../components/Update2FAModal.vue';
 
 export default {
   components: {
     ChangePasswordModal,
+    Update2FAModal,
   },
   data() {
     return {
       username: '', // Assuming you'll load this data from your login response
       showChangePasswordModal: false,
+      showUpdate2FAModal: false,
     };
   },
   setup() {
@@ -75,6 +84,9 @@ export default {
     },
     openChangePasswordModal() {
       this.showChangePasswordModal = true;
+    },
+    openUpdate2FAModal() {
+      this.showUpdate2FAModal = true;
     },
   },
 };
