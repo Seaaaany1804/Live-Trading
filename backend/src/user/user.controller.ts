@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Put, Body, UnauthorizedException } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Public } from '../common/decorators/public.decorator';
 
@@ -22,5 +22,14 @@ export class UserController {
     @Body('token') token?: string,
   ) {
     return this.userService.login(username, password, token);
+  }
+
+  @Put('change-password')
+  async changePassword(
+    @Body('username') username: string,
+    @Body('currentPassword') currentPassword: string,
+    @Body('newPassword') newPassword: string,
+  ) {
+    return this.userService.changePassword(username, currentPassword, newPassword);
   }
 }

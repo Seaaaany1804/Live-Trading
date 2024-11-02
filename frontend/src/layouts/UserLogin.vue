@@ -150,31 +150,32 @@ export default {
     },
 
     async onLogin() {
-    try {
+      try {
         const response = await axios.post('http://localhost:3000/user/login', {
-            username: this.username,
-            password: this.password,
-            token: this.is2FARequired ? this.twoFactorCode : undefined,
+          username: this.username,
+          password: this.password,
+          token: this.is2FARequired ? this.twoFactorCode : undefined,
         });
-        
-        // Reset the QR code URL if the login is successful
-        this.qrCodeUrl = null;
+
+        this.qrCodeUrl = null; // Reset QR code URL if login is successful
 
         if (response.data.qrCodeUrl) {
-            this.qrCodeUrl = response.data.qrCodeUrl; // Show QR code if setup is required
-            this.is2FARequired = true; // Set the flag for 2FA
+          this.qrCodeUrl = response.data.qrCodeUrl;
+          this.is2FARequired = true;
         } else {
-            this.router.push({ name: "main-layout" });
+          // Save the username in localStorage
+          localStorage.setItem('username', this.username);
+          this.router.push({ name: "main-layout" });
         }
-    } catch (error) {
+      } catch (error) {
         if (error.response && error.response.data.message === '2FA token required') {
-            this.is2FARequired = true; // Indicate that 2FA is required
+          this.is2FARequired = true;
         } else {
-            console.error('Login failed:', error.response || error);
-            alert('Failed to login');
+          console.error('Login failed:', error.response || error);
+          alert('Failed to login');
         }
+      }
     }
-}
 
 
   }
