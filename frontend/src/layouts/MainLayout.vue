@@ -71,7 +71,6 @@
       </div>
     </div>
 
-    <!-- Live Trades Display -->
     <div class="q-pa-lg">
       <h2 class="text-white titleTrades">Live Trades (BTC/USDT)</h2>
       <q-table
@@ -104,7 +103,6 @@ import { useRouter } from 'vue-router';
 import ChangePasswordModal from '../components/ChangePasswordModal.vue';
 import Update2FAModal from '../components/Update2FAModal.vue';
 
-// Mock data for the table
 const seed = []
 
 const columns = [
@@ -114,7 +112,7 @@ const columns = [
   { name: 'quantity', label: 'Quantity (BTC)', align: 'center', field: 'quantity' },
   { name: 'price', label: 'Price (USDT)', align: 'center', field: 'price' },
   { name: 'createTime', label: 'Time', align: 'center', field: 'createTime', 
-    format: val => new Date(val).toLocaleString() // More specific time format
+    format: val => new Date(val).toLocaleString() 
   },
 ];
 
@@ -156,7 +154,6 @@ export default {
      };
   },
   mounted() {
-    // Retrieve the username from localStorage on component load
     this.username = localStorage.getItem('username') || 'Guest';
     this.initWebSocket();
   },
@@ -174,9 +171,9 @@ export default {
       socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (data.channel === 'trades' && data.data) {
-          this.rows.unshift(data.data[0]); // Assuming data.data is an array of trades
+          this.rows.unshift(data.data[0]); 
           if (this.rows.length > 20) {
-            this.rows.pop(); // Keep only the last 20 trades
+            this.rows.pop(); 
           }
         }
       };
@@ -197,8 +194,8 @@ export default {
 
 <style>
 .container {
-  max-height: 100%; /* Set a maximum height for the table container */
-  overflow-y: auto;  /* Enable vertical scrolling */
+  max-height: 100%;
+  overflow-y: auto;  
 }
 .bg-color {
   background-color: #181424;
@@ -233,16 +230,16 @@ export default {
 }
 
 .spacious-table .q-tr {
-  height: 60px; /* Adjust height of table rows */
+  height: 60px; 
 }
 .spacious-table .q-td {
-  padding: 25px; /* Adjust padding for table cells */
+  padding: 25px; 
   font-size: medium;
 }
 
 .spacious-table  .q-table__top,
   .q-table__bottom,
-  thead tr:first-child th {/* bg color is important for th; just specify one */
+  thead tr:first-child th {
     background-color: #181c24;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
   }

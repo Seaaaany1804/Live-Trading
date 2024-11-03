@@ -15,7 +15,6 @@ export class UserService {
   ) {}
 
   async register(username: string, password: string) {
-    // Check if the username already exists
     const existingUser = await this.userRepository.findOne({ where: { username } });
     if (existingUser) {
       throw new UnauthorizedException('Username already exists');
@@ -38,7 +37,6 @@ export class UserService {
       throw new UnauthorizedException('Invalid username or password');
     }
   
-    // Compare the hashed password
     const isPasswordMatch = await bcrypt.compare(password, user.password);
     if (!isPasswordMatch) {
       throw new UnauthorizedException('Invalid username or password');
@@ -48,7 +46,6 @@ export class UserService {
       return { message: 'Login successful', user };
     }
   
-    // Check for 2FA only if enabled
     if (user.is_google_auth_enabled) {
       if (!token) {
         throw new UnauthorizedException('2FA token required');
@@ -62,7 +59,6 @@ export class UserService {
         throw new UnauthorizedException('Invalid 2FA token');
       }
     } else {
-      // Set up 2FA if not already enabled
       const secret = speakeasy.generateSecret({ name: `Blockchain - ${username}` });
       user.google_auth_secret = secret.base32;
       user.is_google_auth_enabled = true;
@@ -71,7 +67,6 @@ export class UserService {
       const qrCodeUrl = await qrcode.toDataURL(secret.otpauth_url);
       return { message: '2FA setup required', qrCodeUrl };
     }
-
     return { message: 'Login successful', user };
   }
 
@@ -81,31 +76,25 @@ export class UserService {
       throw new UnauthorizedException('User not found');
     }
 
-    // Compare the current password with the stored hashed password
     const isCurrentPasswordMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isCurrentPasswordMatch) {
       throw new UnauthorizedException('Current password is incorrect');
     }
 
-    // Hash the new password before storing
     user.password = await bcrypt.hash(newPassword, 10);
     await this.userRepository.save(user);
-
     return { message: 'Password changed successfully' };
   }
 
   async updateTwoFactorAuth(username: string, status: string) {
-    console.log('Updating 2FA for:', username, 'Status:', status);
     const user = await this.userRepository.findOne({ where: { username } });
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
   
-    user.status = status; // Update the status to 'enabled' or 'disabled'
-    user.is_google_auth_enabled = status === 'enabled'; // Adjust the 2FA setting
-    await this.userRepository.save(user);
-  
-    console.log('User updated successfully:', user);
+      user.status = status; 
+      user.is_google_auth_enabled = status === 'enabled'; 
+      await this.userRepository.save(user);
     return { message: `2FA is now ${status}` };
   }
 
@@ -115,14 +104,12 @@ export class UserService {
       throw new UnauthorizedException('User not found');
     }
   
-    // Generate a new 2FA secret and QR code URL
     const secret = speakeasy.generateSecret({ name: `YourApp - ${username}` });
     user.google_auth_secret = secret.base32;
-    user.is_google_auth_enabled = true; // Ensure 2FA is enabled
+    user.is_google_auth_enabled = true; 
     
     await this.userRepository.save(user);
   
-    // Generate QR code URL
     const qrCodeUrl = await qrcode.toDataURL(secret.otpauth_url);
     return { message: '2FA reset successful', qrCodeUrl };
   }

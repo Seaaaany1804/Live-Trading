@@ -1,6 +1,6 @@
 <template>
     <q-dialog v-model="showModal" persistent>
-      <q-card>
+      <q-card class="container">
         <q-toolbar>
           <q-avatar>
             <img src="https://it.lbl.gov/wp-content/uploads/sites/18/2024/07/google-authenticator-logo.png">
@@ -66,6 +66,11 @@
   </script>
   
   <style scoped>
+.container {
+  max-height: 100%; 
+  overflow-y: auto; 
+}
+
   .full-width {
     width: 100%;
   }

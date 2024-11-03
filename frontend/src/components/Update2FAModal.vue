@@ -77,15 +77,12 @@ export default {
           username,
           status: this.twoFaStatus,
         });
-        console.log('Response:', response.data);
         this.$emit('update:status', this.twoFaStatus);
         
-        // Clear QR code after saving
         this.qrCodeUrl = null;
         
         this.closeModal();
       } catch (error) {
-        console.error('Failed to update 2FA status:', error.response ? error.response.data : error.message);
         alert('Failed to update 2FA status');
       }
     },
@@ -97,7 +94,6 @@ export default {
         });
         this.qrCodeUrl = response.data.qrCodeUrl;
       } catch (error) {
-        console.error('Failed to reset 2FA:', error.response ? error.response.data : error.message);
         alert('Failed to reset 2FA');
       }
     },

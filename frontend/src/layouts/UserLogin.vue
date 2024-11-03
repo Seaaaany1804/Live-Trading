@@ -1,7 +1,5 @@
-<!-- frontend/src/layouts/UserLogin.vue -->
-
 <template>
-  <div class="background fullscreen flex justify-center items-center">
+  <div class="background container fullscreen flex justify-center items-center">
     <q-card flat bordered class="login-card">
       <div class="row justify-center">
         <h4 class="text-center text-bold input-style">{{ registerMode ? 'Register' : 'Login' }}</h4>
@@ -15,7 +13,6 @@
           color="purple-8"
           label-color="purple-1"
           class="q-mb-md input-style"
-          
           lazy-rules
           :rules="[val => !!val || 'Please type your username']"
         />
@@ -38,15 +35,15 @@
             val => /[0-9]/.test(val) || 'Password must contain at least one number'
           ]"
         >
-  <template v-slot:append>
-    <q-icon
-      :name="isPwd ? 'visibility_off' : 'visibility'"
-      class="cursor-pointer"
-      color="white"
-      @click="isPwd = !isPwd"
-    />
-  </template>
-</q-input>
+          <template v-slot:append>
+            <q-icon
+              :name="isPwd ? 'visibility_off' : 'visibility'"
+              class="cursor-pointer"
+              color="white"
+              @click="isPwd = !isPwd"
+            />
+          </template>
+        </q-input>
         <q-input
           v-if="registerMode"
           outlined
@@ -59,12 +56,7 @@
           :type="isPwd ? 'password' : 'text'"
           lazy-rules
           :rules="[
-          val => !!val || 'Please confirm your password',
-          val => val.length >= 8 || 'Password must be at least 8 characters long',
-          val => /[A-Z]/.test(val) || 'Password must contain at least one uppercase letter',
-          val => /[a-z]/.test(val) || 'Password must contain at least one lowercase letter',
-          val => /[0-9]/.test(val) || 'Password must contain at least one number'
-          ]"
+          val => !!val || 'Please confirm your password']"
         >
           <template v-slot:append>
             <q-icon
@@ -114,7 +106,6 @@
         <div class="row col justify-center">
           <img v-if="qrCodeUrl" :src="qrCodeUrl" alt="Scan QR Code to Setup 2FA" class="q-mb-md">
         </div>
-        
 
         <q-btn
           :label="registerMode ? 'Register' : 'Log in'"
@@ -157,7 +148,7 @@ export default {
       twoFactorCode: '',
       showInstructions: false,
       is2FARequired: false,
-      qrCodeUrl: null, // Store QR code for initial setup
+      qrCodeUrl: null, 
     };
   },
   setup() {
@@ -168,7 +159,7 @@ export default {
     toggleRegisterMode() {
       this.registerMode = !this.registerMode;
       this.clearForm();
-      this.is2FARequired = false; // Reset 2FA requirement when toggling modes
+      this.is2FARequired = false; 
       this.qrCodeUrl = null;
     },
     clearForm() {
@@ -192,18 +183,16 @@ export default {
           username: this.username,
           password: this.newPassword,
         });
-        console.log(response.data); // Log the response
         alert("Registration Succesful!")
-        this.toggleRegisterMode(); // Switch to login mode after successful registration
+        this.toggleRegisterMode(); 
       } catch (error) {
-        console.error('Registration failed:', error.response || error);
-        alert('Registration Failed');
+        alert('Registration failed. Please try again.');
       }
     },
 
     async onLogin() {
       if (!this.username || !this.password) {
-        alert('Please fill in both username and password');
+        alert('Login failed. Please try again.');
         return;
       }
 
@@ -214,13 +203,12 @@ export default {
       token: this.is2FARequired ? this.twoFactorCode : undefined,
     });
 
-    this.qrCodeUrl = null; // Reset QR code URL if login is successful
+    this.qrCodeUrl = null; 
 
     if (response.data.qrCodeUrl) {
       this.qrCodeUrl = response.data.qrCodeUrl;
       this.is2FARequired = true;
     } else {
-      // Save the username in localStorage
       localStorage.setItem('username', this.username);
       this.router.push({ name: "main-layout" });
 
@@ -229,13 +217,11 @@ export default {
     if (error.response && error.response.data.message === '2FA token required') {
       this.is2FARequired = true;
     } else {
-      console.error('Login failed:', error.response || error);
-      alert('The account does not exists.');
+      alert('Login failed. Please try again.');
     }
   }
 },
 async mounted() {
-    // Fetch user details to check 2FA status
     const response = await axios.get(`http://localhost:3000/user/${this.username}`);
     this.is2FARequired = response.data.status === 'enabled';
   },
@@ -247,6 +233,11 @@ async mounted() {
 </script>
 
 <style scoped>
+.container {
+  max-height: 100%; 
+  overflow-y: auto; 
+}
+
 .background {
   width: 100%;
   height: 100%;
@@ -259,7 +250,7 @@ async mounted() {
   max-width: 450px;
   padding: 2rem;
   border-radius: 10px;
-  background: rgba(64, 64, 64, 0.15); /* Glass effect */
+  background: rgba(64, 64, 64, 0.15); 
   border: 3px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0px 10px 30px rgba(0, 0, 0, 1);
   backdrop-filter: blur(5px);
@@ -282,7 +273,7 @@ h4 {
 
 .input-style {
   font-family: Verdana, Geneva, Tahoma, sans-serif;
-  color: white !important; /* Input text color */
+  color: white !important; 
 }
 
 .underlined {
