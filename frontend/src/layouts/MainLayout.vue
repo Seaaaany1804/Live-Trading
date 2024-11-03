@@ -223,5 +223,15 @@ export default {
   font-size: large;
 }
 
+@media (max-width: 600px) {
+  .title {
+    display: none;
+  }
+
+  .titleTrades {
+    text-align: center;
+  }
+}
+
 </style>
 
