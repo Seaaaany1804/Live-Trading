@@ -63,7 +63,7 @@ export class UserService {
       }
     } else {
       // Set up 2FA if not already enabled
-      const secret = speakeasy.generateSecret({ name: `YourApp - ${username}` });
+      const secret = speakeasy.generateSecret({ name: `Blockchain - ${username}` });
       user.google_auth_secret = secret.base32;
       user.is_google_auth_enabled = true;
       await this.userRepository.save(user);

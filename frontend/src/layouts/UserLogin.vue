@@ -110,7 +110,7 @@
           lazy-rules
           :rules="[val => !!val || 'Please enter your 2FA code']"
   />
-        <p v-if="qrCodeUrl" class="text-center underlined"> Instructions </p>
+        <p v-if="qrCodeUrl" class="text-center underlined" @click="openShowInstructions"> Instructions </p>
         <div class="row col justify-center">
           <img v-if="qrCodeUrl" :src="qrCodeUrl" alt="Scan QR Code to Setup 2FA" class="q-mb-md">
         </div>
@@ -128,6 +128,10 @@
             {{ registerMode ? 'Login Here!' : 'Register Here!' }}
           </a>
         </div>
+        <InstructionsQR
+        :show="showInstructions"
+        @close="showInstructions = false"
+      />
       </q-form>
     </q-card>
   </div>
@@ -136,8 +140,12 @@
 <script>
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+import InstructionsQR from '../components/InstructionsQR.vue';
 
 export default {
+  components: {
+    InstructionsQR,
+  },
   data() {
     return {
       username: '',
@@ -147,6 +155,7 @@ export default {
       isPwd: true,
       registerMode: false,
       twoFactorCode: '',
+      showInstructions: false,
       is2FARequired: false,
       qrCodeUrl: null, // Store QR code for initial setup
     };
@@ -154,11 +163,6 @@ export default {
   setup() {
     const router = useRouter();
     return { router };
-  },
-  async mounted() {
-    // Fetch user details to check 2FA status
-    const response = await axios.get(`http://localhost:3000/user/${this.username}`);
-    this.is2FARequired = response.data.status === 'enabled';
   },
   methods: {
     toggleRegisterMode() {
@@ -180,7 +184,7 @@ export default {
   }
 
       if (this.newPassword !== this.confirmPassword) {
-        alert('Passwords do not match.');
+        alert('Passwords do not match');
         return;
       }
       try {
@@ -189,16 +193,17 @@ export default {
           password: this.newPassword,
         });
         console.log(response.data); // Log the response
+        alert("Registration Succesful!")
         this.toggleRegisterMode(); // Switch to login mode after successful registration
       } catch (error) {
         console.error('Registration failed:', error.response || error);
-        alert('Username already exists.');
+        alert('Registration Failed');
       }
     },
 
     async onLogin() {
       if (!this.username || !this.password) {
-        alert('Please fill in both username and password.');
+        alert('Please fill in both username and password');
         return;
       }
 
@@ -218,6 +223,7 @@ export default {
       // Save the username in localStorage
       localStorage.setItem('username', this.username);
       this.router.push({ name: "main-layout" });
+
     }
   } catch (error) {
     if (error.response && error.response.data.message === '2FA token required') {
@@ -227,10 +233,15 @@ export default {
       alert('The account does not exists.');
     }
   }
-}
-
-
-
+},
+async mounted() {
+    // Fetch user details to check 2FA status
+    const response = await axios.get(`http://localhost:3000/user/${this.username}`);
+    this.is2FARequired = response.data.status === 'enabled';
+  },
+  openShowInstructions() {
+      this.showInstructions = true;
+    },
   }
 };
 </script>
