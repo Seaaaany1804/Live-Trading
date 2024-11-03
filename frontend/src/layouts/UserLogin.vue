@@ -4,59 +4,86 @@
   <div class="background fullscreen flex justify-center items-center">
     <q-card flat bordered class="login-card">
       <div class="row justify-center">
-        <h4 class="text-center text-bold">{{ registerMode ? 'Register' : 'Login' }}</h4>
+        <h4 class="text-center text-bold input-style">{{ registerMode ? 'Register' : 'Login' }}</h4>
       </div>
-      <q-form class="q-pa-md">
+      <q-form ref="registerForm" class="q-pa-md">
         <q-input
-          filled
           v-model="username"
           label="Username"
-          class="q-mb-md"
+          outlined
+          :input-style="{ color: 'white', fontFamily: 'Verdana'}"
+          color="purple-8"
+          label-color="purple-1"
+          class="q-mb-md input-style"
+          
           lazy-rules
           :rules="[val => !!val || 'Please type your username']"
         />
         <q-input
           v-if="registerMode"
-          filled
+          outlined
           v-model="newPassword"
           label="New Password"
-          class="q-mb-md"
+          class="q-mb-md input-style"
+          label-color="white"
+          color="purple-8"
+          :input-style="{ color: 'white', fontFamily: 'Verdana'}"
           :type="isPwd ? 'password' : 'text'"
           lazy-rules
-          :rules="[val => !!val || 'Please type your new password']"
+          :rules="[
+            val => !!val || 'Please type your new password',
+            val => val.length >= 8 || 'Password must be at least 8 characters long',
+            val => /[A-Z]/.test(val) || 'Password must contain at least one uppercase letter',
+            val => /[a-z]/.test(val) || 'Password must contain at least one lowercase letter',
+            val => /[0-9]/.test(val) || 'Password must contain at least one number'
+          ]"
         >
-          <template v-slot:append>
-            <q-icon
-              :name="isPwd ? 'visibility_off' : 'visibility'"
-              class="cursor-pointer"
-              @click="isPwd = !isPwd"
-            />
-          </template>
-        </q-input>
+  <template v-slot:append>
+    <q-icon
+      :name="isPwd ? 'visibility_off' : 'visibility'"
+      class="cursor-pointer"
+      color="white"
+      @click="isPwd = !isPwd"
+    />
+  </template>
+</q-input>
         <q-input
           v-if="registerMode"
-          filled
+          outlined
           v-model="confirmPassword"
           label="Confirm Password"
-          class="q-mb-md"
+          color="purple-8"
+          label-color="white"
+          :input-style="{ color: 'white', fontFamily: 'Verdana'}"
+          class="q-mb-md input-style"
           :type="isPwd ? 'password' : 'text'"
           lazy-rules
-          :rules="[val => !!val || 'Please confirm your password']"
+          :rules="[
+          val => !!val || 'Please confirm your password',
+          val => val.length >= 8 || 'Password must be at least 8 characters long',
+          val => /[A-Z]/.test(val) || 'Password must contain at least one uppercase letter',
+          val => /[a-z]/.test(val) || 'Password must contain at least one lowercase letter',
+          val => /[0-9]/.test(val) || 'Password must contain at least one number'
+          ]"
         >
           <template v-slot:append>
             <q-icon
               :name="isPwd ? 'visibility_off' : 'visibility'"
               class="cursor-pointer"
+              color="white"
               @click="isPwd = !isPwd"
             />
           </template>
         </q-input>
         <q-input
           v-if="!registerMode"
-          filled
+          outlined
           v-model="password"
           label="Password"
-          class="q-mb-md"
+          :input-style="{ color: 'white', fontFamily: 'Verdana'}"
+          color="purple-8"
+          class="q-mb-md input-style"
+          label-color="white"
           :type="isPwd ? 'password' : 'text'"
           lazy-rules
           :rules="[val => !!val || 'Please type your password']"
@@ -65,6 +92,7 @@
             <q-icon
               :name="isPwd ? 'visibility_off' : 'visibility'"
               class="cursor-pointer"
+              color="white"
               @click="isPwd = !isPwd"
             />
           </template>
@@ -72,26 +100,31 @@
 
         <q-input
           v-if="is2FARequired"
-          filled
+          outlined
           v-model="twoFactorCode"
+          color="purple-8"
+          :input-style="{ color: 'white', fontFamily: 'Verdana'}"
           label="2FA Code"
-          class="q-mb-md"
+          label-color="white"
+          class="q-mb-sm"  
           lazy-rules
           :rules="[val => !!val || 'Please enter your 2FA code']"
   />
-  <!-- Display QR Code if 2FA setup is required -->
-  <img v-if="qrCodeUrl" :src="qrCodeUrl" alt="Scan QR Code to Setup 2FA" />
+        <p v-if="qrCodeUrl" class="text-center underlined"> Instructions </p>
+        <div class="row col justify-center">
+          <img v-if="qrCodeUrl" :src="qrCodeUrl" alt="Scan QR Code to Setup 2FA" class="q-mb-md">
+        </div>
+        
 
         <q-btn
           :label="registerMode ? 'Register' : 'Log in'"
-          color="primary"
-          class="full-width q-m-md"
+          class="full-width primary-bg input-style q-m-lg"
           @click="registerMode ? onRegister() : onLogin()"
         />
-        <div class="text-center q-mt-md">
-          <span v-if="registerMode">Already have an account?</span>
-          <span v-else>Don’t have an account?</span>
-          <a href="#" class="text-primary" @click="toggleRegisterMode">
+        <div class="text-center q-mt-md input-style">
+          <span v-if="registerMode">Already have an account? </span>
+          <span v-else>Don’t have an account? </span>
+          <a href="#" class="text-purple-3" @click="toggleRegisterMode">
             {{ registerMode ? 'Login Here!' : 'Register Here!' }}
           </a>
         </div>
@@ -131,16 +164,23 @@ export default {
     toggleRegisterMode() {
       this.registerMode = !this.registerMode;
       this.clearForm();
+      this.is2FARequired = false; // Reset 2FA requirement when toggling modes
+      this.qrCodeUrl = null;
     },
     clearForm() {
       this.username = '';
       this.password = '';
       this.newPassword = '';
       this.confirmPassword = '';
+      this.twoFactorCode = ''; 
     },
     async onRegister() {
+      if (!(await this.$refs.registerForm.validate())) {
+    return;
+  }
+
       if (this.newPassword !== this.confirmPassword) {
-        alert('Passwords do not match');
+        alert('Passwords do not match.');
         return;
       }
       try {
@@ -152,11 +192,16 @@ export default {
         this.toggleRegisterMode(); // Switch to login mode after successful registration
       } catch (error) {
         console.error('Registration failed:', error.response || error);
-        alert('Registration failed');
+        alert('Username already exists.');
       }
     },
 
     async onLogin() {
+      if (!this.username || !this.password) {
+        alert('Please fill in both username and password.');
+        return;
+      }
+
   try {
     const response = await axios.post('http://localhost:3000/user/login', {
       username: this.username,
@@ -179,10 +224,11 @@ export default {
       this.is2FARequired = true;
     } else {
       console.error('Login failed:', error.response || error);
-      alert('Failed to login');
+      alert('The account does not exists.');
     }
   }
 }
+
 
 
   }
@@ -191,17 +237,19 @@ export default {
 
 <style scoped>
 .background {
-  background: url('https://static.vecteezy.com/system/resources/previews/001/846/151/non_2x/cryptocurrency-stock-chart-light-futuristic-banner-background-free-vector.jpg') no-repeat center center;
+  background: url('../assets/mybackground.jpg') no-repeat center center;
   background-size: cover;
 }
 
 .login-card {
   width: 90%;
-  max-width: 400px;
+  max-width: 450px;
   padding: 2rem;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.2); /* Glass effect */
+  background: rgba(64, 64, 64, 0.15); /* Glass effect */
+  border: 3px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0px 10px 30px rgba(0, 0, 0, 1);
+  backdrop-filter: blur(5px);
   color: white;
 }
 
@@ -209,12 +257,24 @@ export default {
   width: 100%;
 }
 
-.text-primary {
-  color: #ffa726; /* Adjust to your preferred accent color */
+.primary-bg {
+  background-color: #6424bb;
 }
 
 h4 {
   font-size: 1.5rem;
   margin-bottom: 1rem;
+  
+}
+
+.input-style {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  color: white !important; /* Input text color */
+}
+
+.underlined {
+  text-decoration: underline;
+  cursor: pointer;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 </style>

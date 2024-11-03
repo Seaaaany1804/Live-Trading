@@ -15,6 +15,12 @@ export class UserService {
   ) {}
 
   async register(username: string, password: string) {
+    // Check if the username already exists
+    const existingUser = await this.userRepository.findOne({ where: { username } });
+    if (existingUser) {
+      throw new UnauthorizedException('Username already exists');
+    }
+  
     // Hash the password before storing
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = this.userRepository.create({
@@ -22,7 +28,7 @@ export class UserService {
       password: hashedPassword,
     });
     await this.userRepository.save(user);
-
+  
     return { message: 'Registration successful', user };
   }
 
