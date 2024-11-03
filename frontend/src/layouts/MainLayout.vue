@@ -1,67 +1,81 @@
 <template>
-  <div class="q-pa-md">
+  <div class="q-pa-md bg-color container fullscreen">
     <!-- Account Settings Dropdown -->
-    <div class="flex justify-end">
-      <q-btn-dropdown
-        class="glossy"
-        color="purple"
-        label="Account Settings"
-      >
-        <div class="row no-wrap q-pa-md">
-          <div class="column">
-            <div class="text-h6 q-mb-md">Settings</div>
-            <q-item clickable v-close-popup @click="openChangePasswordModal">
-              <q-item-section>
-                <q-item-label>Change Password</q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item clickable v-close-popup @click="openUpdate2FAModal">
-              <q-item-section>
-                <q-item-label>Change 2FA</q-item-label>
-              </q-item-section>
-            </q-item>
+    <div class="flex justify-between">
+      <div>
+        <q-avatar>
+          <img src="https://play-lh.googleusercontent.com/fJnNqhY7mJjLnh4KVD62X-tUUA_tmC2h2GKPcS-Jn-qL1i_p0o2RlCNh4CcCvVXg23s">
+        </q-avatar>
+
+        <span class="title"> Poloniex Websocket </span>
+      </div>
+        <div>
+        <q-btn-dropdown
+          class="glossy account-settings"
+          label="Account Settings"
+        >
+          <div class="row no-wrap q-pa-md">
+            <div class="column">
+              <div class="text-h6 q-mb-md">Settings</div>
+              <q-item clickable v-close-popup @click="openChangePasswordModal">
+                <q-item-section>
+                  <q-item-label>Change Password</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="openUpdate2FAModal">
+                <q-item-section>
+                  <q-item-label>Change 2FA</q-item-label>
+                </q-item-section>
+              </q-item>
+            </div>
+            <q-separator vertical inset class="q-mx-lg" />
+            <div class="column items-center">
+              <q-avatar size="72px">
+                <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
+              </q-avatar>
+              <div class="text-subtitle1 q-mt-md q-mb-xs">{{ username }}</div>
+              <q-btn
+                color="grey-10"
+                label="Logout"
+                push
+                @click="onLogout"
+                size="sm"
+                v-close-popup
+              />
+            </div>
           </div>
-          <q-separator vertical inset class="q-mx-lg" />
-          <div class="column items-center">
-            <q-avatar size="72px">
-              <img src="https://cdn.quasar.dev/img/boy-avatar.png">
-            </q-avatar>
-            <div class="text-subtitle1 q-mt-md q-mb-xs">{{ username }}</div>
-            <q-btn
-              color="primary"
-              label="Logout"
-              push
-              @click="onLogout"
-              size="sm"
-              v-close-popup
-            />
-          </div>
-        </div>
-      </q-btn-dropdown>
-      <ChangePasswordModal
-        :show="showChangePasswordModal"
-        @close="showChangePasswordModal = false"
-      />
-      <Update2FAModal
-        :show="showUpdate2FAModal"
-        @close="showUpdate2FAModal = false"
-      />
+        </q-btn-dropdown>
+        <ChangePasswordModal
+          :show="showChangePasswordModal"
+          @close="showChangePasswordModal = false"
+        />
+        <Update2FAModal
+          :show="showUpdate2FAModal"
+          @close="showUpdate2FAModal = false"
+        />
+      </div>
     </div>
 
     <!-- Live Trades Display -->
-    <div class="q-mt-lg">
-      <h2>Live Trades (BTC/USDT)</h2>
+    <div class="q-pa-lg">
+      <h2 class="text-white titleTrades">Live Trades (BTC/USDT)</h2>
       <q-table
-        :rows="trades"
+        virtual-scroll
+        flat
+        card-class="bg text-white"
+        style="height: 700px;"
+        bordered
+        :rows="rows"
         :columns="columns"
+        v-model:pagination="pagination"
         row-key="id"
-        class="q-mt-md"
+        class="q-mt-md spacious-table" 
       >
-        <template v-slot:body-cell-takerSide="props">
-          <q-td :props="props">
-            <span :class="props.row.takerSide === 'buy' ? 'text-positive' : 'text-negative'">
-              {{ props.row.takerSide }}
-            </span>
+      <template v-slot:body-cell-takerSide="props">
+    <q-td :props="props" :class="props.rowIndex % 2 === 0 ? 'row-even' : 'row-odd'">
+      <span :class="props.row.takerSide === 'buy' ? 'text-positive' : 'text-negative'">
+        {{ props.row.takerSide }}
+      </span>
           </q-td>
         </template>
       </q-table>
@@ -70,9 +84,24 @@
 </template>
 
 <script>
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import ChangePasswordModal from '../components/ChangePasswordModal.vue';
 import Update2FAModal from '../components/Update2FAModal.vue';
+
+// Mock data for the table
+const seed = []
+
+const columns = [
+  { name: 'id', label: 'Trade ID', align: 'center', field: 'id' },
+  { name: 'amount', label: 'Amount', align: 'center', field: 'amount' },
+  { name: 'takerSide', label: 'Side', align: 'center', field: 'takerSide' },
+  { name: 'quantity', label: 'Quantity (BTC)', align: 'center', field: 'quantity' },
+  { name: 'price', label: 'Price (USDT)', align: 'center', field: 'price' },
+  { name: 'createTime', label: 'Time', align: 'center', field: 'createTime', 
+    format: val => new Date(val).toLocaleString() // More specific time format
+  },
+];
 
 export default {
   components: {
@@ -81,38 +110,31 @@ export default {
   },
   data() {
     return {
-      username: '', // Assuming you'll load this data from your login response
+      columns,
+      rows: seed, 
+      username: '',
       showChangePasswordModal: false,
       showUpdate2FAModal: false,
-      trades: [], // Array to hold trade data
-      columns: [
-        { name: 'id', label: 'Trade ID', align: 'left', field: 'id' },
-        { name: 'amount', label: 'Amount', align: 'right', field: 'amount' },
-        { name: 'takerSide', label: 'Side', align: 'center', field: 'takerSide' },
-        { name: 'quantity', label: 'Quantity (BTC', align: 'right', field: 'quantity' },
-        { name: 'price', label: 'Price (USDT)', align: 'right', field: 'price' },
-        { name: 'createTime', label: 'Time', align: 'right', field: 'createTime', 
-          format: val => new Date(val).toLocaleString() // More specific time format
-        },
-      ],
+
+      pagination: ref({
+        rowsPerPage: 0
+      })
     };
   },
   setup() {
+    
     const router = useRouter();
     return { router };
   },
   mounted() {
     // Retrieve the username from localStorage on component load
     this.username = localStorage.getItem('username') || 'Guest';
-
-    // Initialize WebSocket connection
     this.initWebSocket();
   },
   methods: {
     initWebSocket() {
       const socket = new WebSocket('wss://ws.poloniex.com/ws/public'); // Replace with your WebSocket URL
       socket.onopen = () => {
-        // Subscribe to the trades channel for BTC/USDT
         socket.send(JSON.stringify({
           event: "subscribe",
           channel: ["trades"],
@@ -123,10 +145,9 @@ export default {
       socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (data.channel === 'trades' && data.data) {
-          // Add new trade to the trades array
-          this.trades.unshift(data.data[0]); // Assuming data.data is an array of trades
-          if (this.trades.length > 20) {
-            this.trades.pop(); // Keep only the last 20 trades
+          this.rows.unshift(data.data[0]); // Assuming data.data is an array of trades
+          if (this.rows.length > 20) {
+            this.rows.pop(); // Keep only the last 20 trades
           }
         }
       };
@@ -144,3 +165,63 @@ export default {
   },
 };
 </script>
+
+<style>
+.container {
+  max-height: 100%; /* Set a maximum height for the table container */
+  overflow-y: auto;  /* Enable vertical scrolling */
+}
+.bg-color {
+  background-color: #181424;
+}
+.text-white {
+  color: white;
+}
+
+.title {
+  color: white;
+  font-size: large;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-weight: bold;
+}
+
+.titleTrades {
+  color: white;
+  font-size: x-large;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-weight: bold;
+}
+
+.account-settings{
+  font-weight: 300;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  background-color: #202434;
+  color: white
+}
+
+.bg{
+  background-color: #202434;
+}
+
+.spacious-table .q-tr {
+  height: 60px; /* Adjust height of table rows */
+}
+.spacious-table .q-td {
+  padding: 25px; /* Adjust padding for table cells */
+  font-size: medium;
+}
+
+.spacious-table  .q-table__top,
+  .q-table__bottom,
+  thead tr:first-child th {/* bg color is important for th; just specify one */
+    background-color: #181c24;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+  }
+
+.spacious-table  .q-table__top, thead tr:first-child th {
+  padding: 30px;
+  font-size: large;
+}
+
+</style>
+
