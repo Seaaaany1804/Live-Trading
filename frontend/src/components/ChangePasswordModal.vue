@@ -1,40 +1,43 @@
 <template>
   <q-dialog v-model="showModal" persistent>
-    <q-card class="q-pa-xl">
-      <div class="text-h6 text-center">Change Password</div>
+    <q-card class="background q-pa-xl">
+      <div class="text-h5 poppins text-bold text-center">Change Password</div>
       <q-form @submit.prevent="onSubmit" class="q-mt-md">
         <q-input
-          filled
+          outlined
           v-model="currentPassword"
           label="Current Password"
           type="password"
           lazy-rules
+          color="grey-10"
+          :input-style="{fontFamily: 'Verdana'}"
           :rules="[val => !!val || 'Please enter your current password']"
-          class="q-mb-md"
+          class="q-mb-md poppins"
         />
         <q-input
-          filled
+        outlined
           v-model="newPassword"
           label="New Password"
           type="password"
           lazy-rules
+          color="grey-10"
           :rules="[val => !!val || 'Please enter a new password']"
           class="q-mb-md"
         />
         <q-input
-          filled
+        outlined
           v-model="confirmPassword"
           label="Confirm New Password"
           type="password"
           lazy-rules
           :rules="[val => val === newPassword || 'Passwords must match']"
-          class="q-mb-md"
+          class="q-mb-md poppins"
         />
         <q-btn
           label="Change Password"
-          color="primary"
+          color="grey-10"
           type="submit"
-          class="full-width q-mt-md"
+          class="full-width q-mt-md poppins"
         />
       </q-form>
       <q-btn
@@ -42,7 +45,7 @@
         label="Cancel"
         color="negative"
         @click="closeModal"
-        class="full-width q-mt-md"
+        class="full-width poppins q-mt-md"
       />
     </q-card>
   </q-dialog>
@@ -106,8 +109,17 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
+.background {
+  background-color: white;
+  width: 430px;
+}
+
 .full-width {
   width: 100%;
+}
+
+.poppins {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 </style>

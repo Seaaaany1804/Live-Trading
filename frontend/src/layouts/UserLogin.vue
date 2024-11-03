@@ -121,7 +121,7 @@
           class="full-width primary-bg input-style q-m-lg"
           @click="registerMode ? onRegister() : onLogin()"
         />
-        <div class="text-center q-mt-md input-style">
+        <div class="text-center logreg q-mt-md input-style">
           <span v-if="registerMode">Already have an account? </span>
           <span v-else>Don’t have an account? </span>
           <a href="#" class="text-purple-3" @click="toggleRegisterMode">
@@ -248,6 +248,8 @@ async mounted() {
 
 <style scoped>
 .background {
+  width: 100%;
+  height: 100%;
   background: url('../assets/mybackground.jpg') no-repeat center center;
   background-size: cover;
 }
@@ -287,5 +289,11 @@ h4 {
   text-decoration: underline;
   cursor: pointer;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+@media (max-width: 600px) {
+  .logreg {
+    text-align: center;
+  }
 }
 </style>

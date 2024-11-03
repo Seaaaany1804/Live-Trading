@@ -2,7 +2,7 @@
   <q-dialog v-model="showModal" persistent>
     <q-card class="q-pa-md">
       <q-card-title class="title">
-        <div>Update Google 2-step Authentication</div>
+        <div class="text-black">Update Google 2-step Authentication</div>
       </q-card-title>
       <q-card-section class="q-pt-none">
         <div class="q-gutter-md options">
@@ -12,6 +12,7 @@
             label="Enable Google 2FA"
             color="green"
             icon="lock"
+            class="poppins"
           />
           <q-radio
             v-model="twoFaStatus"
@@ -19,17 +20,21 @@
             label="Disable Google 2FA"
             color="red"
             icon="lock_open"
+            class="poppins"
           />
         </div>
       </q-card-section>
 
       <q-card> 
-        <q-btn color="primary" style="width: 100%;" label="Reset" @click="reset2FA" />
-        <img v-if="qrCodeUrl" :src="qrCodeUrl" alt="Scan QR Code to Setup 2FA" class="q-mt-md" />
+        <q-btn color="grey-10" class="poppins" style="width: 100%;" label="Reset" @click="reset2FA" />
+        <p v-if="qrCodeUrl" class="text-center q-mt-lg underlined" @click="openShowInstructions"> Scan the QR Code </p>
+        <div class="row col backg justify-center">
+          <img v-if="qrCodeUrl" :src="qrCodeUrl" alt="Scan QR Code to Setup 2FA" class="q-mb-sm">
+        </div>
       </q-card>
       
-      <q-card-actions align="right" class="actions">
-        <q-btn color="primary" label="Save" @click="updateStatus" />
+      <q-card-actions align="right" class="actions poppins">
+        <q-btn color="grey-10" label="Save" @click="updateStatus" />
         <q-btn flat label="Close" color="grey-8" @click="closeModal" />
       </q-card-actions>
     </q-card>
@@ -125,5 +130,15 @@ export default {
 
 .q-mt-md {
   margin-top: 1rem;
+}
+
+.poppins {
+  font-family: Verdana, Geneva, Tahoma, sans-serif
+}
+
+.underlined {
+  text-decoration: underline;
+  cursor: pointer;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 </style>

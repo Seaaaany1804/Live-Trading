@@ -33,15 +33,30 @@
               <q-avatar size="72px">
                 <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
               </q-avatar>
-              <div class="text-subtitle1 q-mt-md q-mb-xs">{{ username }}</div>
+              <div class="poppins text-subtitle1 q-mt-md q-mb-xs">{{ username }}</div>
               <q-btn
-                color="grey-10"
-                label="Logout"
-                push
-                @click="onLogout"
-                size="sm"
-                v-close-popup
-              />
+                  v-for="filter in backdropFilterList"
+                  :key="filter.label"
+                  color="grey-10"
+                  label="LOGOUT"
+                  push
+                  size="sm"
+                  no-caps
+                  @click="filter.onClick"
+                />
+
+                <q-dialog v-model="dialog" :backdrop-filter="backdropFilter">
+                  <q-card>
+                    <q-card-section class="poppins text-h6 q-pa-lg">
+                      Are you sure you want to logout?
+                    </q-card-section>
+
+                    <q-card-actions align="right">
+                      <q-btn flat label="No" class="poppins" color="negative" v-close-popup />
+                      <q-btn flat label="Yes" class="poppins" color="grey-10" @click="onLogout" />
+                    </q-card-actions>
+                  </q-card>
+                </q-dialog>
             </div>
           </div>
         </q-btn-dropdown>
@@ -122,9 +137,23 @@ export default {
     };
   },
   setup() {
+
+    const list = ['blur(4px)']
+
+    const dialog = ref(false)
+    const backdropFilter = ref(null)
     
     const router = useRouter();
-    return { router };
+    return { router, dialog,
+      backdropFilter,
+      backdropFilterList: list.map(filter => ({
+        label: filter,
+        onClick: () => {
+          backdropFilter.value = filter
+          dialog.value = true
+        }
+      }))
+     };
   },
   mounted() {
     // Retrieve the username from localStorage on component load
